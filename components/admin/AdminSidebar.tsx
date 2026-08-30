@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -119,7 +119,6 @@ export default function AdminSidebar() {
         gap: 12,
         padding: collapsed ? "16px 0" : "16px 28px",
         justifyContent: collapsed ? "center" : "flex-start",
-        borderTop: "1px solid var(--border)",
         background: "none",
         border: "none",
         borderTop: "1px solid var(--border)",
