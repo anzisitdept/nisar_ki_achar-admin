@@ -1,5 +1,5 @@
-﻿"use client";
-import { useEffect, useState } from "react";
+"use client";
+import { use, useEffect, useState } from "react";
 import { getOrder, updateOrderStatus } from "@/lib/firestoreServices";
 import OrderReceipt from "@/components/admin/OrderReceipt";
 import type { Order, OrderStatus } from "@/types/admin";
@@ -8,13 +8,14 @@ import toast from "react-hot-toast";
 
 const STATUSES: OrderStatus[] = ["Pending", "Processing", "Dispatched", "Delivered", "Cancelled"];
 
-export default function OrderDetailPage({ params }: { params: { id: string } }) {
+export default function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getOrder(params.id).then((o) => { setOrder(o); setLoading(false); });
-  }, [params.id]);
+    getOrder(id).then((o) => { setOrder(o); setLoading(false); });
+  }, [id]);
 
   if (loading) return <div style={{ display: "flex", justifyContent: "center", padding: 80 }}><Loader2 size={32} color="var(--accent)" className="spin" /></div>;
   if (!order) return <p style={{ padding: 40, color: "var(--red)" }}>Order not found.</p>;

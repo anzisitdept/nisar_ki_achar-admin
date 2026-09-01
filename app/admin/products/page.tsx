@@ -1,14 +1,15 @@
-﻿"use client";
+"use client";
 import { useEffect, useState } from "react";
-import { getProducts, deleteProduct, updateProduct } from "@/lib/firestoreServices";
+import { getProducts, deleteProduct, updateProduct, seedDefaultProducts } from "@/lib/firestoreServices";
 import type { Product } from "@/types/admin";
-import { Plus, Pencil, Trash2, Search, Package } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Package, Sparkles, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [seeding, setSeeding] = useState(false);
 
   async function load() {
     const data = await getProducts();
@@ -17,6 +18,21 @@ export default function ProductsPage() {
   }
 
   useEffect(() => { load(); }, []);
+
+  async function handleSeed() {
+    if (!confirm("Add all 13 traditional products (Mix Achar, Khalis Aam Achar, Chutneys, etc.) to your store?")) return;
+    setSeeding(true);
+    try {
+      const count = await seedDefaultProducts();
+      toast.success(`Successfully added ${count} products to your store!`);
+      await load();
+    } catch (err: any) {
+      console.error("Seed error:", err);
+      toast.error(err?.message || "Failed to seed products.");
+    } finally {
+      setSeeding(false);
+    }
+  }
 
   const filtered = products.filter(p =>
     p.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -43,9 +59,21 @@ export default function ProductsPage() {
           <h2 className="page-title">Products</h2>
           <p className="page-subtitle">{products.length} total products in your store</p>
         </div>
-        <a href="/admin/products/new" className="btn btn-primary">
-          <Plus size={16} /> Add Product
-        </a>
+        <div style={{ display: "flex", gap: 10 }}>
+          <button
+            type="button"
+            onClick={handleSeed}
+            disabled={seeding}
+            className="btn btn-ghost"
+            style={{ border: "1px solid var(--accent)", color: "var(--accent)" }}
+          >
+            {seeding ? <Loader2 size={16} className="spin" /> : <Sparkles size={16} />}
+            {seeding ? "Adding 13 Products…" : "⚡ Quick Seed 13 Products"}
+          </button>
+          <a href="/admin/products/new" className="btn btn-primary">
+            <Plus size={16} /> Add Product
+          </a>
+        </div>
       </div>
 
       <div className="card">
