@@ -1,4 +1,4 @@
-﻿import {
+import {
   collection,
   doc,
   getDocs,
@@ -20,6 +20,7 @@ import {
   deleteObject,
 } from "firebase/storage";
 import { db, storage } from "./firebase";
+import { uploadToImgBB } from "./imgbbUpload";
 import type {
   Product,
   Category,
@@ -137,13 +138,20 @@ export async function updateStoreContent(data: Partial<StoreContent>): Promise<v
 }
 
 // ─────────────────────────────────────────────
-// STORAGE UPLOAD
+// STORAGE / IMGBB UPLOAD
 // ─────────────────────────────────────────────
-export function uploadImage(
+
+export async function uploadImage(
   file: File,
-  path: string,
+  path: string = "uploads",
   onProgress?: (pct: number) => void
 ): Promise<string> {
+  // If ImgBB API Key is configured, use ImgBB (Free, No Firebase Blaze required)
+  if (process.env.NEXT_PUBLIC_IMGBB_API_KEY) {
+    return uploadToImgBB(file, onProgress);
+  }
+
+  // Fallback to Firebase Storage if key is not configured
   return new Promise((resolve, reject) => {
     const storageRef = ref(storage, path);
     const task = uploadBytesResumable(storageRef, file);
@@ -153,10 +161,18 @@ export function uploadImage(
         const pct = (snap.bytesTransferred / snap.totalBytes) * 100;
         onProgress?.(Math.round(pct));
       },
-      reject,
+      (error) => {
+        console.error("Firebase Storage task error:", error);
+        reject(error);
+      },
       async () => {
-        const url = await getDownloadURL(task.snapshot.ref);
-        resolve(url);
+        try {
+          const url = await getDownloadURL(task.snapshot.ref);
+          resolve(url);
+        } catch (err) {
+          console.error("Failed to get download URL:", err);
+          reject(err);
+        }
       }
     );
   });

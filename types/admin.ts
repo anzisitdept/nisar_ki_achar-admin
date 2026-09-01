@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // types/admin.ts — Full TypeScript Type Definitions
 // ============================================================
 
@@ -86,6 +86,7 @@ export interface HeroSlide {
   desktopImage: string;
   mobileImage: string;
   alt: string;
+  link?: string;
 }
 
 export interface Banner {
@@ -95,10 +96,25 @@ export interface Banner {
   alt: string;
 }
 
+export interface ShopByCategorySection {
+  title: string;
+  categoryIds: string[];
+}
+
+export interface ProductCuratedSection {
+  title: string;
+  productIds: string[];
+}
+
 export interface StoreContent {
   topBarMessages: string[];
   heroSlides: HeroSlide[];
+  shopByCategory: ShopByCategorySection;
+  bestSellers: ProductCuratedSection;
+  newArrivals: ProductCuratedSection;
   midBanners: Banner[];
+  bundleOffers: ProductCuratedSection;
+  specialItems: ProductCuratedSection;
 }
 
 export interface DashboardStats {
