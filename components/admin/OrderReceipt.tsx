@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import type { Order } from "@/types/admin";
 import { Printer } from "lucide-react";
 
@@ -8,21 +8,23 @@ export default function OrderReceipt({ order }: { order: Order }) {
     : "—";
 
   return (
-    <div>
+    <div style={{ width: "100%" }}>
       <button className="btn btn-ghost" onClick={() => window.print()} style={{ marginBottom: 20 }}>
         <Printer size={16} /> Print Invoice
       </button>
       <div id="printable-receipt" style={{
         background: "white",
         color: "#111",
-        padding: 40,
+        padding: "clamp(16px, 5vw, 40px)",
         borderRadius: 12,
+        width: "100%",
         maxWidth: 600,
+        boxSizing: "border-box",
         fontFamily: "Inter, sans-serif",
         fontSize: "0.9rem",
       }}>
         {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32, flexWrap: "wrap", gap: 12 }}>
           <div>
             <h2 style={{ fontSize: "1.4rem", fontWeight: 900, color: "#b45309" }}>🫙 Nisar Ki Achar</h2>
             <p style={{ color: "#666", fontSize: "0.8rem" }}>Premium Desi Pickles & Preserves</p>
@@ -42,7 +44,8 @@ export default function OrderReceipt({ order }: { order: Order }) {
         </div>
 
         {/* Items */}
-        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 24 }}>
+        <div style={{ width: "100%", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 24, minWidth: 280 }}>
           <thead>
             <tr style={{ borderBottom: "2px solid #eee" }}>
               <th style={{ textAlign: "left", padding: "8px 0", fontWeight: 600, fontSize: "0.8rem" }}>Item</th>
@@ -63,6 +66,7 @@ export default function OrderReceipt({ order }: { order: Order }) {
             ))}
           </tbody>
         </table>
+        </div>
 
         {/* Totals */}
         <div style={{ borderTop: "2px solid #eee", paddingTop: 16 }}>

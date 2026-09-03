@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -10,6 +10,8 @@ import { Loader2 } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null | undefined>(undefined);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -22,6 +24,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     });
     return () => unsub();
   }, [pathname, router]);
+
+  // Auto-close mobile drawer on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   if (user === undefined) {
     return (
@@ -38,21 +45,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!user) return null;
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
-      <AdminSidebar />
-      <div style={{
-        flex: 1,
-        marginLeft: "260px",
-        display: "flex",
-        flexDirection: "column",
-        minHeight: "100vh",
-        transition: "margin-left 0.3s ease",
-      }}>
-        <AdminHeader />
-        <main style={{ flex: 1, padding: "28px", background: "var(--bg-base)" }}>
+    <div style={{ display: "flex", minHeight: "100vh", position: "relative" }}>
+      {/* Mobile Drawer Backdrop */}
+      <div
+        className={`mobile-overlay ${mobileMenuOpen ? "active" : ""}`}
+        onClick={() => setMobileMenuOpen(false)}
+        aria-hidden="true"
+      />
+
+      <AdminSidebar
+        collapsed={sidebarCollapsed}
+        setCollapsed={setSidebarCollapsed}
+        mobileOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+      />
+
+      <div className={`admin-main-wrapper ${sidebarCollapsed ? "collapsed" : ""}`}>
+        <AdminHeader onToggleMobileMenu={() => setMobileMenuOpen((prev) => !prev)} />
+        <main className="admin-main-content">
           {children}
         </main>
       </div>
+
       <Toaster position="top-right" toastOptions={{
         style: { background: "var(--bg-elevated)", color: "var(--text-primary)", border: "1px solid var(--border)" }
       }} />

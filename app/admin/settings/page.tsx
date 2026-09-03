@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState, FormEvent } from "react";
 import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -12,8 +12,8 @@ export default function SettingsPage() {
   const [changingPw, setChangingPw] = useState(false);
 
   const [storeName, setStoreName] = useState("Nisar Ki Achar");
-  const [storeEmail, setStoreEmail] = useState("");
-  const [storePhone, setStorePhone] = useState("");
+  const [storeEmail, setStoreEmail] = useState(process.env.NEXT_PUBLIC_ADMIN_NOTIFICATION_EMAIL || "info.nisarachar@gmail.com");
+  const [storePhone, setStorePhone] = useState("+92 300 0000000");
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(2999);
   const [shippingFee, setShippingFee] = useState(200);
 

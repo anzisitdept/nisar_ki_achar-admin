@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createProduct, updateProduct, getProduct } from "@/lib/firestoreServices";
@@ -133,9 +133,9 @@ export default function ProductForm({ productId, initialData }: Props) {
             </div>
 
             <h4 style={{ fontWeight: 600, marginBottom: 12, fontSize: "0.875rem" }}>Weight Variants</h4>
-            <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-              <input className="input" placeholder="e.g. 500g" value={newWeight} onChange={(e) => setNewWeight(e.target.value)} style={{ flex: 1 }} />
-              <input className="input" placeholder="Price (PKR)" type="number" value={newWeightPrice} onChange={(e) => setNewWeightPrice(e.target.value)} style={{ flex: 1 }} />
+            <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+              <input className="input" placeholder="e.g. 500g" value={newWeight} onChange={(e) => setNewWeight(e.target.value)} style={{ flex: "1 1 120px" }} />
+              <input className="input" placeholder="Price (PKR)" type="number" value={newWeightPrice} onChange={(e) => setNewWeightPrice(e.target.value)} style={{ flex: "1 1 120px" }} />
               <button type="button" onClick={addWeight} className="btn btn-primary" style={{ flexShrink: 0 }}>
                 <Plus size={14} /> Add
               </button>

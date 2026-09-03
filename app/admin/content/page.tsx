@@ -297,6 +297,7 @@ export default function ContentPage() {
           display: "flex",
           gap: 6,
           overflowX: "auto",
+          WebkitOverflowScrolling: "touch",
           paddingBottom: 12,
           marginBottom: 20,
         }}

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useEffect, useState, FormEvent } from "react";
 import { getCategories, createCategory, updateCategory, deleteCategory } from "@/lib/firestoreServices";
 import ImageUploader from "@/components/admin/ImageUploader";
@@ -67,32 +67,34 @@ export default function CategoriesPage() {
       )}
 
       <div className="card">
-        <table>
-          <thead><tr><th>Category</th><th>Slug</th><th>Items</th><th>Actions</th></tr></thead>
-          <tbody>
-            {categories.map((c) => (
-              <tr key={c.id}>
-                <td>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    {c.image && <img src={c.image} alt={c.name} style={{ width: 40, height: 40, borderRadius: 8, objectFit: "cover", border: "1px solid var(--border)" }} />}
-                    <div>
-                      <p style={{ fontWeight: 600 }}>{c.name}</p>
-                      {c.urduName && <p style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>{c.urduName}</p>}
+        <div className="table-container">
+          <table>
+            <thead><tr><th>Category</th><th>Slug</th><th>Items</th><th>Actions</th></tr></thead>
+            <tbody>
+              {categories.map((c) => (
+                <tr key={c.id}>
+                  <td>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      {c.image && <img src={c.image} alt={c.name} style={{ width: 40, height: 40, borderRadius: 8, objectFit: "cover", border: "1px solid var(--border)" }} />}
+                      <div>
+                        <p style={{ fontWeight: 600 }}>{c.name}</p>
+                        {c.urduName && <p style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>{c.urduName}</p>}
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td><span className="badge badge-processing">{c.slug}</span></td>
-                <td>{c.itemCount}</td>
-                <td>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button onClick={() => openEdit(c)} className="btn btn-ghost" style={{ padding: "6px 12px" }}><Pencil size={14} /></button>
-                    <button onClick={() => handleDelete(c.id, c.name)} className="btn btn-danger" style={{ padding: "6px 12px" }}><Trash2 size={14} /></button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  </td>
+                  <td><span className="badge badge-processing">{c.slug}</span></td>
+                  <td>{c.itemCount}</td>
+                  <td>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button onClick={() => openEdit(c)} className="btn btn-ghost" style={{ padding: "6px 12px" }} title="Edit"><Pencil size={14} /></button>
+                      <button onClick={() => handleDelete(c.id, c.name)} className="btn btn-danger" style={{ padding: "6px 12px" }} title="Delete"><Trash2 size={14} /></button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

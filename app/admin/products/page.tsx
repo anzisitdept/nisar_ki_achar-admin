@@ -1,15 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getProducts, deleteProduct, updateProduct, seedDefaultProducts } from "@/lib/firestoreServices";
+import { getProducts, deleteProduct, updateProduct } from "@/lib/firestoreServices";
 import type { Product } from "@/types/admin";
-import { Plus, Pencil, Trash2, Search, Package, Sparkles, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Package } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [seeding, setSeeding] = useState(false);
 
   async function load() {
     const data = await getProducts();
@@ -18,21 +17,6 @@ export default function ProductsPage() {
   }
 
   useEffect(() => { load(); }, []);
-
-  async function handleSeed() {
-    if (!confirm("Add all 13 traditional products (Mix Achar, Khalis Aam Achar, Chutneys, etc.) to your store?")) return;
-    setSeeding(true);
-    try {
-      const count = await seedDefaultProducts();
-      toast.success(`Successfully added ${count} products to your store!`);
-      await load();
-    } catch (err: any) {
-      console.error("Seed error:", err);
-      toast.error(err?.message || "Failed to seed products.");
-    } finally {
-      setSeeding(false);
-    }
-  }
 
   const filtered = products.filter(p =>
     p.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -60,16 +44,6 @@ export default function ProductsPage() {
           <p className="page-subtitle">{products.length} total products in your store</p>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
-          <button
-            type="button"
-            onClick={handleSeed}
-            disabled={seeding}
-            className="btn btn-ghost"
-            style={{ border: "1px solid var(--accent)", color: "var(--accent)" }}
-          >
-            {seeding ? <Loader2 size={16} className="spin" /> : <Sparkles size={16} />}
-            {seeding ? "Adding 13 Products…" : "⚡ Quick Seed 13 Products"}
-          </button>
           <a href="/admin/products/new" className="btn btn-primary">
             <Plus size={16} /> Add Product
           </a>
@@ -78,7 +52,7 @@ export default function ProductsPage() {
 
       <div className="card">
         {/* Search */}
-        <div style={{ position: "relative", marginBottom: 20, maxWidth: 360 }}>
+        <div style={{ position: "relative", marginBottom: 20, width: "100%", maxWidth: 360 }}>
           <Search size={15} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
           <input
             className="input"
@@ -97,68 +71,70 @@ export default function ProductsPage() {
             <p>No products found. <a href="/admin/products/new" style={{ color: "var(--accent)" }}>Add your first product →</a></p>
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Rating</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((p) => (
-                <tr key={p.id}>
-                  <td>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      {p.image ? (
-                        <img src={p.image} alt={p.name} style={{ width: 44, height: 44, borderRadius: 8, objectFit: "cover", border: "1px solid var(--border)" }} />
-                      ) : (
-                        <div style={{ width: 44, height: 44, borderRadius: 8, background: "var(--bg-elevated)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <Package size={18} color="var(--text-muted)" />
-                        </div>
-                      )}
-                      <div>
-                        <p style={{ fontWeight: 600, fontSize: "0.875rem" }}>{p.name}</p>
-                        {p.urduName && <p style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>{p.urduName}</p>}
-                      </div>
-                    </div>
-                  </td>
-                  <td><span className="badge badge-processing">{p.categoryName || p.category}</span></td>
-                  <td>
-                    <div>
-                      <p style={{ fontWeight: 700 }}>Rs. {p.price?.toLocaleString()}</p>
-                      {p.originalPrice > p.price && (
-                        <p style={{ color: "var(--text-muted)", textDecoration: "line-through", fontSize: "0.78rem" }}>Rs. {p.originalPrice?.toLocaleString()}</p>
-                      )}
-                    </div>
-                  </td>
-                  <td>
-                    <label className="toggle">
-                      <input type="checkbox" checked={!!p.inStock} onChange={() => handleToggleStock(p.id, !!p.inStock)} />
-                      <span className="toggle-slider" />
-                    </label>
-                  </td>
-                  <td>
-                    <span style={{ color: "var(--accent)" }}>{"★".repeat(Math.round(p.rating || 0))}</span>
-                    <span style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}> ({p.reviewsCount || 0})</span>
-                  </td>
-                  <td>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <a href={`/admin/products/${p.id}`} className="btn btn-ghost" style={{ padding: "6px 12px" }}>
-                        <Pencil size={14} />
-                      </a>
-                      <button onClick={() => handleDelete(p.id, p.name)} className="btn btn-danger" style={{ padding: "6px 12px" }}>
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Rating</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((p) => (
+                  <tr key={p.id}>
+                    <td>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        {p.image ? (
+                          <img src={p.image} alt={p.name} style={{ width: 44, height: 44, borderRadius: 8, objectFit: "cover", border: "1px solid var(--border)" }} />
+                        ) : (
+                          <div style={{ width: 44, height: 44, borderRadius: 8, background: "var(--bg-elevated)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <Package size={18} color="var(--text-muted)" />
+                          </div>
+                        )}
+                        <div>
+                          <p style={{ fontWeight: 600, fontSize: "0.875rem" }}>{p.name}</p>
+                          {p.urduName && <p style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>{p.urduName}</p>}
+                        </div>
+                      </div>
+                    </td>
+                    <td><span className="badge badge-processing">{p.categoryName || p.category}</span></td>
+                    <td>
+                      <div>
+                        <p style={{ fontWeight: 700 }}>Rs. {p.price?.toLocaleString()}</p>
+                        {p.originalPrice > p.price && (
+                          <p style={{ color: "var(--text-muted)", textDecoration: "line-through", fontSize: "0.78rem" }}>Rs. {p.originalPrice?.toLocaleString()}</p>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <label className="toggle">
+                        <input type="checkbox" checked={!!p.inStock} onChange={() => handleToggleStock(p.id, !!p.inStock)} />
+                        <span className="toggle-slider" />
+                      </label>
+                    </td>
+                    <td>
+                      <span style={{ color: "var(--accent)" }}>{"★".repeat(Math.round(p.rating || 0))}</span>
+                      <span style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}> ({p.reviewsCount || 0})</span>
+                    </td>
+                    <td>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <a href={`/admin/products/${p.id}`} className="btn btn-ghost" style={{ padding: "6px 12px" }}>
+                          <Pencil size={14} />
+                        </a>
+                        <button onClick={() => handleDelete(p.id, p.name)} className="btn btn-danger" style={{ padding: "6px 12px" }}>
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
