@@ -36,6 +36,12 @@ export default function ProductsPage() {
     load();
   }
 
+  async function handleToggleAllProducts(id: string, currentVisible: boolean) {
+    await updateProduct(id, { showInAllProducts: !currentVisible });
+    toast.success(`Product ${!currentVisible ? "shown on" : "hidden from"} All Products page`);
+    load();
+  }
+
   return (
     <div className="fade-in">
       <div className="page-header">
@@ -79,6 +85,7 @@ export default function ProductsPage() {
                   <th>Category</th>
                   <th>Price</th>
                   <th>Stock</th>
+                  <th>All Products</th>
                   <th>Rating</th>
                   <th>Actions</th>
                 </tr>
@@ -115,6 +122,25 @@ export default function ProductsPage() {
                         <input type="checkbox" checked={!!p.inStock} onChange={() => handleToggleStock(p.id, !!p.inStock)} />
                         <span className="toggle-slider" />
                       </label>
+                    </td>
+                    <td>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 3 }}>
+                        <label className="toggle" title={p.showInAllProducts !== false ? "Visible on All Products page" : "Hidden from All Products page"}>
+                          <input
+                            type="checkbox"
+                            checked={p.showInAllProducts !== false}
+                            onChange={() => handleToggleAllProducts(p.id, p.showInAllProducts !== false)}
+                          />
+                          <span className="toggle-slider" />
+                        </label>
+                        <span style={{
+                          fontSize: "0.72rem",
+                          fontWeight: 600,
+                          color: p.showInAllProducts !== false ? "var(--green)" : "var(--text-muted)",
+                        }}>
+                          {p.showInAllProducts !== false ? "Visible" : "Hidden"}
+                        </span>
+                      </div>
                     </td>
                     <td>
                       <span style={{ color: "var(--accent)" }}>{"★".repeat(Math.round(p.rating || 0))}</span>

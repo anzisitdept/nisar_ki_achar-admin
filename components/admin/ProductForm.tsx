@@ -11,6 +11,7 @@ const EMPTY: Omit<Product, "id"> = {
   slug: "", name: "", urduName: "", category: "", categoryName: "",
   originalPrice: 0, price: 0, discountBadge: "",
   isBestSeller: false, isNew: false, inStock: true,
+  showInAllProducts: true,
   image: "", hoverImage: "", images: [], weights: [], weightPrices: {},
   description: "", ingredients: "", benefits: "",
   rating: 5, reviewsCount: 0,
@@ -20,7 +21,11 @@ interface Props { productId?: string; initialData?: Partial<Product>; }
 
 export default function ProductForm({ productId, initialData }: Props) {
   const router = useRouter();
-  const [form, setForm] = useState<Omit<Product, "id">>({ ...EMPTY, ...initialData });
+  const [form, setForm] = useState<Omit<Product, "id">>({
+    ...EMPTY,
+    ...initialData,
+    showInAllProducts: initialData?.showInAllProducts !== undefined ? initialData.showInAllProducts : true,
+  });
   const [saving, setSaving] = useState(false);
   const [newWeight, setNewWeight] = useState("");
   const [newWeightPrice, setNewWeightPrice] = useState("");
@@ -161,16 +166,51 @@ export default function ProductForm({ productId, initialData }: Props) {
 
           <div className="card">
             <h3 style={{ fontWeight: 700, marginBottom: 20 }}>Flags & Status</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {[
-                { key: "inStock", label: "In Stock" },
-                { key: "isBestSeller", label: "Best Seller" },
-                { key: "isNew", label: "New Arrival" },
-              ].map(({ key, label }) => (
-                <div key={key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontWeight: 500 }}>{label}</span>
-                  <label className="toggle">
-                    <input type="checkbox" checked={!!form[key as keyof typeof form]} onChange={(e) => set(key as keyof typeof form, e.target.checked)} />
+                {
+                  key: "inStock",
+                  label: "In Stock",
+                  desc: "Available for customer purchase",
+                },
+                {
+                  key: "showInAllProducts",
+                  label: "Show on All Products Page",
+                  desc: "Display this product on the storefront's /collections/all-products catalog",
+                },
+                {
+                  key: "isBestSeller",
+                  label: "Best Seller",
+                  desc: "Show in Best Seller sections and display badge",
+                },
+                {
+                  key: "isNew",
+                  label: "New Arrival",
+                  desc: "Show in New Arrivals collection and highlights",
+                },
+              ].map(({ key, label, desc }) => (
+                <div
+                  key={key}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 16,
+                    padding: "6px 0",
+                  }}
+                >
+                  <div>
+                    <span style={{ fontWeight: 600, fontSize: "0.875rem", display: "block" }}>{label}</span>
+                    <span style={{ color: "var(--text-muted)", fontSize: "0.75rem", display: "block", marginTop: 2 }}>
+                      {desc}
+                    </span>
+                  </div>
+                  <label className="toggle" style={{ flexShrink: 0 }}>
+                    <input
+                      type="checkbox"
+                      checked={!!form[key as keyof typeof form]}
+                      onChange={(e) => set(key as keyof typeof form, e.target.checked)}
+                    />
                     <span className="toggle-slider" />
                   </label>
                 </div>
