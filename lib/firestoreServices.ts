@@ -148,12 +148,22 @@ export async function uploadImage(
   path: string = "uploads",
   onProgress?: (pct: number) => void
 ): Promise<string> {
-  // If ImgBB API Key is configured, use ImgBB (Free, No Firebase Blaze required)
+  // ImgBB is the preferred provider (free, no Firebase Blaze required)
   if (process.env.NEXT_PUBLIC_IMGBB_API_KEY) {
-    return uploadToImgBB(file, onProgress);
+    try {
+      return await uploadToImgBB(file, onProgress);
+    } catch (err: any) {
+      const reason = err?.message || "Unknown error";
+      throw new Error(`ImgBB upload failed: ${reason}`);
+    }
   }
 
-  // Fallback to Firebase Storage if key is not configured
+  console.warn(
+    "NEXT_PUBLIC_IMGBB_API_KEY is not set, falling back to Firebase Storage. " +
+      "Add it to .env.local (and to your hosting provider's env vars) and restart/redeploy."
+  );
+
+  // Fallback to Firebase Storage if ImgBB key is not configured
   return new Promise((resolve, reject) => {
     const storageRef = ref(storage, path);
     const task = uploadBytesResumable(storageRef, file);
@@ -163,9 +173,17 @@ export async function uploadImage(
         const pct = (snap.bytesTransferred / snap.totalBytes) * 100;
         onProgress?.(Math.round(pct));
       },
-      (error) => {
+      (error: any) => {
         console.error("Firebase Storage task error:", error);
-        reject(error);
+        if (error?.code === "storage/retry-limit-exceeded") {
+          reject(
+            new Error(
+              "Firebase Storage upload timed out. Set NEXT_PUBLIC_IMGBB_API_KEY in .env.local and restart the dev server, or add it to your hosting provider's env vars and redeploy."
+            )
+          );
+        } else {
+          reject(error);
+        }
       },
       async () => {
         try {
